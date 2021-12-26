@@ -7,9 +7,14 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <errno.h>
+
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+
+#include <limits.h>
+#include <inttypes.h>
 
 #include <unistd.h>
 #ifdef WIN32

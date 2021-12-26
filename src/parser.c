@@ -38,7 +38,40 @@ Variable * processType(char * str, int * p)
 			{
 				switch(str[*p])
 				{
-					case '\\': ++(*p); break;
+					case '\\':
+					{
+						char c = str[++(*p)];
+						switch(c)
+						{
+							case 'n': c = '\n'; break;
+							case 't': c = '\t'; break;
+							case 'r': c = '\r'; break;
+							case 'b': c = '\b'; break;
+							default:
+								if(isNumber(c))
+								{
+									char num[4];
+									int i = 0;
+									for(;str[*p]&&i<3;++(*p))
+									{
+										if(str[*p] >= '0' && str[*p] <= '8')
+										{
+											num[i++] = str[*p];
+										}
+										else break;
+									}
+									num[i] = '\0';
+									
+									--(*p);
+									
+									c = (char)strtoul(num, NULL, 8);
+								}
+								break;
+						}
+						if(c == 0) break;
+						string[i++] = c;
+						break;
+					}
 					case '"': done = true; break;
 					default:
 						string[i++] = str[*p];
@@ -76,9 +109,14 @@ Variable * processType(char * str, int * p)
 			//--(*p);
 			setVarString(d, num); 
 			
+			errno = 0;
+			
 			if(isInt)
 				setVarInt(d, getVarInt(d));
 			else
+				setVarNumber(d, getVarNumber(d));
+			
+			if(errno == ERANGE && isInt)
 				setVarNumber(d, getVarNumber(d));
 			
 			done = true;
