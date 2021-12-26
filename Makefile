@@ -7,6 +7,16 @@ DATA_PREFIX=./
 CFLAGS_=-O2 $(CFLAGS)
 
 
+# check PREFIX
+ifeq ($(PREFIX),)
+	PREFIX=/usr/local/
+endif
+
+ifeq ($(DATA_PREFIX),)
+	DATA_PREFIX=$(PREFIX)/share/
+endif
+
+
 OBJECTS=\
 obj/main.o \
 obj/core.o \
@@ -15,6 +25,9 @@ obj/Variable.o \
 obj/variables.o \
 obj/functions.o \
 obj/parser.o \
+
+
+install_bin = install -g $(USER) -o $(USER) -m 755
 
 
 all:	$(TARGET)
@@ -30,7 +43,7 @@ debug:
 	@CFLAGS="$(CFLAGS) -O0 -g -rdynamic -DERR_C_BT -Wall" $(MAKE)
 
 run-debug: debug
-	-gdb -ex=run -ex=bt -ex=quit --args ./$(TARGET) $(ARGS)
+	gdb -ex=run -ex=bt -ex=quit --args ./$(TARGET) $(ARGS)
 
 debug-run: run-debug
 
@@ -41,6 +54,15 @@ clean:
 
 clean-dist:
 	-rm -f obj/*.o
+
+
+install: $(TARGET)
+	mkdir -p $(PREFIX)/bin/
+	-$(install_bin) $(TARGET) $(PREFIX)/bin/$(TARGET)
+	
+
+uninstall:
+	rm    $(PREFIX)/bin/$(TARGET)
 
 
 emscripten:
