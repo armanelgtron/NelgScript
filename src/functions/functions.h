@@ -25,6 +25,23 @@
 	_FUNC(func_mult) \
 	_FUNC(func_div) \
 	_FUNC(func_intdiv) \
+	_FUNC(func_mod) \
+	\
+	_FUNC(func_pow) \
+	_FUNC(func_sqrt) \
+	\
+	_FUNC(func_sin) \
+	_FUNC(func_cos) \
+	_FUNC(func_tan) \
+	\
+	_FUNC(func_atan2) \
+	\
+	_FUNC(func_round) \
+	_FUNC(func_ceil) \
+	_FUNC(func_floor) \
+	\
+	_FUNC(func_min) \
+	_FUNC(func_max) \
 	\
 	_FUNC(func_pi) \
 	_FUNC(func_e) \

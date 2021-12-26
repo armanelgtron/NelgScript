@@ -155,6 +155,7 @@ Variable * call_function(func f, Variable * argv[])
 		
 		case func_add:
 		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
 			// TODO: support for integer
 			// or perhaps remove it entirely and only rely on "Number" type 
 			
@@ -172,6 +173,7 @@ Variable * call_function(func f, Variable * argv[])
 		
 		case func_sub:
 		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
 			// TODO: support for integer
 			
 			VAR_NUM n = getVarNumber(*p);
@@ -188,6 +190,7 @@ Variable * call_function(func f, Variable * argv[])
 		
 		case func_mult:
 		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
 			// TODO: support for integer
 			
 			VAR_NUM n = getVarNumber(*p);
@@ -210,6 +213,7 @@ Variable * call_function(func f, Variable * argv[])
 		
 		case func_div:
 		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
 			VAR_NUM n = getVarNumber(*p);
 			
 			VAR_NUM t;
@@ -254,6 +258,7 @@ Variable * call_function(func f, Variable * argv[])
 		
 		case func_intdiv:
 		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
 			VAR_INT n = getVarInt(*p);
 			VAR_INT t;
 			while(*(++p))
@@ -290,6 +295,167 @@ Variable * call_function(func f, Variable * argv[])
 			
 			Variable * var = newVar();
 			setVarInt(var, n);
+			return var;
+		}
+		
+		case func_mod:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*p);
+			
+			VAR_NUM t;
+			while(*(++p))
+			{
+				t = getVarNumber(*p);
+				if(t == 0 && n == 0)
+				{
+					n = NAN;
+				}
+				else
+				{
+					n = fmod(n, t);
+				}
+			}
+			
+			Variable * var = newVar();
+			setVarNumber(var, n);
+			return var;
+		}
+		
+		case func_pow:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*(p++));
+			VAR_NUM m = (*p)?getVarNumber(*p):0;
+			
+			Variable * var = newVar();
+			setVarNumber(var, powl(n, m));
+			return var;
+		}
+		
+		case func_sqrt:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarNumber(var, sqrtl(getVarNumber(*p)));
+			return var;
+		}
+		
+		case func_sin:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarNumber(var, sinl(getVarNumber(*p)));
+			return var;
+		}
+		case func_cos:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarNumber(var, cosl(getVarNumber(*p)));
+			return var;
+		}
+		case func_tan:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarNumber(var, tanl(getVarNumber(*p)));
+			return var;
+		}
+		
+		case func_atan2:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*(p++));
+			VAR_NUM m = (*p)?getVarNumber(*p):0;
+			
+			Variable * var = newVar();
+			setVarNumber(var, atan2l(n, m));
+			return var;
+		}
+		
+		case func_round:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*(p++));
+			
+			if(*p)
+			{
+				VAR_NUM m = powl(10, getVarNumber(*p));
+				n = roundl(n*m)/m;
+			}
+			else n = roundl(n);
+			
+			Variable * var = newVar();
+			setVarNumber(var, n);
+			return var;
+		}
+		
+		case func_ceil:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*(p++));
+			
+			if(*p)
+			{
+				VAR_NUM m = powl(10, getVarNumber(*p));
+				n = ceill(n*m)/m;
+			}
+			else n = ceill(n);
+			
+			Variable * var = newVar();
+			setVarNumber(var, n);
+			return var;
+		}
+		
+		case func_floor:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*(p++));
+			
+			if(*p)
+			{
+				VAR_NUM m = powl(10, getVarNumber(*p));
+				n = floorl(n*m)/m;
+			}
+			else n = floorl(n);
+			
+			Variable * var = newVar();
+			setVarNumber(var, n);
+			return var;
+		}
+		
+		case func_min:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*p);
+			
+			VAR_NUM t;
+			while(*(++p))
+			{
+				t = getVarNumber(*p);
+				if(n > t) n = t;
+			}
+			
+			Variable * var = newVar();
+			setVarNumber(var, n);
+			return var;
+		}
+		
+		case func_max:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			VAR_NUM n = getVarNumber(*p);
+			
+			VAR_NUM t;
+			while(*(++p))
+			{
+				t = getVarNumber(*p);
+				if(n < t) n = t;
+			}
+			
+			Variable * var = newVar();
+			setVarNumber(var, n);
 			return var;
 		}
 		
