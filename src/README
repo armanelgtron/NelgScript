@@ -1,0 +1,9 @@
+core - useful functions, not necessarily related to NelgScript
+error - error handling stuff
+functions - where the functions are
+parser - Parses NelgScript code
+
+functions/functions - the predefined functions
+
+variables/Variable - the base variable "class"
+variables/variables - stuff for accessing variables
