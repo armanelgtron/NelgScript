@@ -1,4 +1,4 @@
-core - useful functions, not necessarily related to NelgScript
+core - useful functions used in the NelgScript source
 error - error handling stuff
 functions - where the functions are
 parser - Parses NelgScript code
