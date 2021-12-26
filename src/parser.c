@@ -57,11 +57,12 @@ Variable * processType(char * str, int * p)
 				}
 			}
 		}
-		else if(isNumber(str[*p]))
+		else if( isNumber(str[*p]) || (str[*p] == '-' && isNumber(str[(*p)+1])) )
 		{
 			char num[1024];
 			int i=0;
 			bool isInt = true;
+			if(str[*p] == '-') num[i++] = str[(*p)++];
 			for(;(*p)<l;++(*p))
 			{
 				if( str[*p] == '.' || isNumber(str[*p]) )
