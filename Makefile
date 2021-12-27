@@ -30,7 +30,7 @@ obj/parser.o \
 install_bin = install -g $(USER) -o $(USER) -m 755
 
 
-all:	$(TARGET)
+all: $(TARGET)
 
 
 run: all
@@ -54,6 +54,7 @@ clean:
 
 clean-dist:
 	-rm -f obj/*.o
+	-rmdir obj/
 
 
 install: $(TARGET)
@@ -73,8 +74,11 @@ emscripten:
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS_) $(OBJECTS) -o $(TARGET) -lm 
 
+obj:
+	@mkdir -p obj
+
 # objects
-obj/main.o: src/nelgscript.c 
+obj/main.o: src/nelgscript.c | obj
 	$(CC) $(CFLAGS_) src/nelgscript.c -c -o obj/main.o
 
 obj/core.o: src/core.c src/core.h
