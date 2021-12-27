@@ -17,7 +17,7 @@
 #endif
 
 	#define VAR_INT int64_t
-	#define VAR_INT_STR "%ld"
+	#define VAR_INT_STR "%" PRId64
 
 
 typedef struct Variable
