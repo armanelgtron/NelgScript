@@ -4,7 +4,7 @@
 #ifndef NELGSCRIPT_ERROR_H
 #define NELGSCRIPT_ERROR_H
 
-struct Error {
+static struct Error {
 	bool exists;
 	unsigned int line, col;
 	char desc[128];

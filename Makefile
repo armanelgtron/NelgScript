@@ -1,5 +1,5 @@
 
-TARGET=nelgscript
+TARGET_REAL=nelgscript
 DATA_PREFIX=./
 
 # I don't know how you're "supposed" to do this
@@ -14,6 +14,13 @@ endif
 
 ifeq ($(DATA_PREFIX),)
 	DATA_PREFIX=$(PREFIX)/share/
+endif
+
+
+ifeq ($(PLATFORM),emscripten)
+	TARGET=$(TARGET_REAL).js
+else
+	TARGET=$(TARGET_REAL)
 endif
 
 

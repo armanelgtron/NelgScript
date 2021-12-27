@@ -47,6 +47,6 @@
 #define MAX_VARIABLES 256
 #define MAX_FUNCTIONS 128
 
-bool interactive;
+extern bool interactive;
 
 #endif

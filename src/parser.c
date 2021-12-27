@@ -6,6 +6,7 @@
 #include "error.h"
 #include "variables/variables.h"
 
+bool interactive;
 
 Within * newWithin(Within * from)
 {
