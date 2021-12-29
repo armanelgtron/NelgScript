@@ -53,3 +53,11 @@ int strtimes(const char * str, char c)
 	}
 	return t;
 }
+
+char * mkstring(const char * src)
+{
+	size_t i = 0;
+	char * s = malloc(i=(sizeof(char)*(strlen(src)+1)));
+	memcpy(s, src, i);
+	return s;
+}

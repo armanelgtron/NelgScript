@@ -8,3 +8,4 @@
 int strpos(const char * str, const char * tofind);
 void strtrim(char * str);
 int strtimes(const char * str, char c);
+char * mkstring(const char * src);
