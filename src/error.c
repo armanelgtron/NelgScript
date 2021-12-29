@@ -3,6 +3,8 @@
 #include "error.h"
 #include "variables/Variable.h"
 
+struct Error last_error;
+
 void * error(unsigned int col, char * error)
 {
 	last_error.exists = true;

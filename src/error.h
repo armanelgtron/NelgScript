@@ -4,11 +4,11 @@
 #ifndef NELGSCRIPT_ERROR_H
 #define NELGSCRIPT_ERROR_H
 
-static struct Error {
+struct Error {
 	bool exists;
 	unsigned int line, col;
 	char desc[128];
-} last_error;
+} extern last_error;
 
 #define ERR_NUM_ARGS   "Wrong number of arguments"
 #define ERR_EOL        "Unexpected end of line"
