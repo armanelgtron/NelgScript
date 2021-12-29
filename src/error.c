@@ -15,7 +15,7 @@ void * error(unsigned int col, char * error)
 		void * bt[10];
 		size_t size = backtrace(bt, 10);
 		backtrace_symbols_fd(bt, size, STDERR_FILENO);
-		fprintf(stderr, "\n");
+		fprintf(stderr, "\r\n");
 	#endif
 	
 	#ifdef ERR_SIG
@@ -27,7 +27,7 @@ void * error(unsigned int col, char * error)
 
 static void printError(char * line)
 {
-	fprintf(stderr, "Error: %s on line %i col %i\n\n", last_error.desc, last_error.line, last_error.col);
+	fprintf(stderr, "Error: %s on line %i col %i\r\n\n", last_error.desc, last_error.line, last_error.col);
 	fprintf(stderr, "\t%s\r\n\t%*c^\n", line, last_error.col, last_error.col?' ':'\0');
 }
 

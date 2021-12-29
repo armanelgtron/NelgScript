@@ -44,7 +44,7 @@ Variable * processType(char * str, int * p)
 						char c = str[++(*p)];
 						switch(c)
 						{
-							case 'n': c = '\n'; break;
+							case 'n': string[i++] = '\r'; c = '\n'; break;
 							case 't': c = '\t'; break;
 							case 'r': c = '\r'; break;
 							case 'b': c = '\b'; break;
@@ -406,7 +406,7 @@ bool processLine(char * line, unsigned int * num)
 	if(interactive)
 	{
 		// already better than PHP's interactive mode :P
-		printf("%s\n", r?getVar(r):"???");
+		printf("%s\r\n", r?getVar(r):"???");
 	}
 	
 	freeVar(r);
