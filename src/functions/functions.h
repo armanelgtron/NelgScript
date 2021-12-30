@@ -46,9 +46,16 @@
 	_FUNC(func_pi) \
 	_FUNC(func_e) \
 	\
+	_FUNC(func_isNumber) \
+	\
 	_FUNC(func_time) \
 	\
 	_FUNC(func_print) \
+	\
+	_FUNC(func_int) \
+	_FUNC(func_float) \
+	_FUNC(func_bool) \
+	_FUNC(func_str) \
 
 
 #define _FUNC(x) x,

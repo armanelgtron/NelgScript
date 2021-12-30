@@ -2,6 +2,7 @@
 #include "../global.h"
 #include "functions.h"
 
+#include "../core.h"
 #include "../variables/variables.h"
 #include "../error.h"
 
@@ -479,6 +480,30 @@ Variable * call_function(func f, Variable * argv[])
 			return var;
 		}
 		
+		case func_isNumber:
+		{
+			bool num = (bool)(*p);
+			if(num) do
+			{
+				bool dec = true;
+				char * s = getVarString(*p);
+				int i = 0; do
+				{
+					if( dec && s[i] == '.') { dec = false; continue; }
+					if(!isNumber(s[i]))
+					{
+						num = false;
+					}
+				}
+				while( num && s[++i] );
+			}
+			while( num && (*(++p)) );
+			
+			Variable * var = newVar();
+			setVarBool(var, num);
+			return var;
+		}
+		
 		case func_time:
 		{
 			Variable * var = newVar();
@@ -497,6 +522,38 @@ Variable * call_function(func f, Variable * argv[])
 			printf("\r\n");
 			
 			return newVar();
+		}
+		
+		case func_int:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarInt(var, getVarInt(*p));
+			return var;
+		}
+		
+		case func_float:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarNumber(var, getVarNumber(*p));
+			return var;
+		}
+		
+		case func_bool:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarBool(var, getVarBool(*p));
+			return var;
+		}
+		
+		case func_str:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarString(var, getVarString(*p));
+			return var;
 		}
 		
 		case num_functions: break;
