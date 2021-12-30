@@ -238,7 +238,11 @@ Variable * processFunction(char * line, int * p)
 		{
 			for((*p)+=strlen(_functions[_x]+5);(*p)<strlen(line);++(*p))
 			{
-				char c = line[*p]; if((c <= 122 && c >= 97) || (c <= 90 && c >= 65) || (c <= 57 && c >= 48)) break;
+				char c = line[*p]; if((c <= 122 && c >= 97) || (c <= 90 && c >= 65) || (c <= 57 && c >= 48))
+				{
+					*p -= strlen(_functions[_x]+5);
+					break;
+				}
 				if(line[*p] == '(')
 				{
 					(*p)++;
