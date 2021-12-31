@@ -5,6 +5,22 @@
 #ifndef NELGSCRIPT_PARSER_H
 #define NELGSCRIPT_PARSER_H
 
+typedef struct ParsedData
+{
+	void * data;
+	void ** list;
+	enum
+	{
+		pNull,
+		pVariable,
+		pFunction,
+		pIf,
+		pWhile,
+	} type;
+	unsigned int line, col;
+
+} ParsedData;
+
 typedef struct Within
 {
 	void * from;
@@ -23,13 +39,15 @@ typedef struct Within
 Within * newWithin(Within * from);
 Within * delWithin(Within * from);
 
-Variable * processType(char * str, int * p);
-Variable ** processList(char * str, int * p, char until);
+ParsedData * processType(char * str, int * p);
+ParsedData ** processList(char * str, int * p, char until);
 
 Variable * processVariable(char * str, int * p);
-Variable * processFunction(char * line, int * p);
+ParsedData * processFunction(char * line, int * p);
 
-bool processLine(char * line, unsigned int * num);
+ParsedData * processLine(char * line, unsigned int * num);
+
+Variable * runParsed(ParsedData * line, unsigned int * num);
 
 
 

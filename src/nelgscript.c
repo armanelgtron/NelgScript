@@ -129,7 +129,6 @@ int main(int argc, char ** argv)
 		}
 	}
 	
-	
 	if(interactive)
 	{
 		char event[1024];
@@ -142,7 +141,18 @@ int main(int argc, char ** argv)
 			if(!isatty(fileno(stdin))) fprintf(stderr, "%s", event);
 			
 			strtrim(event);
-			processLine(event, NULL);
+			ParsedData * p = processLine(event, NULL);
+			if(p)
+			{
+				Variable * d = runParsed(p, NULL);
+				
+				// already better than PHP's interactive mode :P
+				printf("%s\r\n", d?getVar(d):"???");
+				
+				free(p);
+				// I think this is safe to free...
+				free(d);
+			}
 			
 			// prints any errors
 			isError(event, 0);
@@ -154,12 +164,12 @@ int main(int argc, char ** argv)
 	}
 	
 	unsigned int line = 0;
-	char ** lines;
+	ParsedData ** lines;
 	
 	{
 		char event[1024]; event[1022] = '\n';
 		unsigned int s = 16, o = 0;
-		lines = (char **)malloc(s*sizeof(char *));
+		lines = (ParsedData **)malloc(s*sizeof(ParsedData *));
 		if(!lines) return 1;
 		while( !feof( file ) && fgets( event, 1023, file ) )
 		{
@@ -173,13 +183,20 @@ int main(int argc, char ** argv)
 			
 			strtrim(event);
 			
-			lines[line] = (char *)malloc(sizeof(char)*(strlen(event)+1));
-			strcpy(lines[line], event);
+			unsigned int oline = line, nline = line;
+			ParsedData * d = processLine(event, &nline);
 			
-			if((++line) >= s)
+			if(isError(event, line+1))
+			{
+				fprintf(stderr,"\r\n");
+				return 1;
+			}
+			lines[line] = d;
+			
+			if( d && ((++line) >= s) )
 			{
 				s *= 2;
-				char ** l = (char **)realloc(lines, s*sizeof(char *));
+				ParsedData ** l = (ParsedData **)realloc(lines, s*sizeof(ParsedData *));
 				if(!l)
 				{
 					fprintf(stderr, "Not enough memory to load in file\r\n");
@@ -196,9 +213,9 @@ int main(int argc, char ** argv)
 	while(lines[line])
 	{
 		unsigned int oline = line, nline = line;
-		processLine(lines[line], &nline);
+		runParsed(lines[line], &nline);
 		
-		if(isError(lines[line], line+1))
+		if(isError("", line+1))
 		{
 			fprintf(stderr,"\r\n");
 			return 1;

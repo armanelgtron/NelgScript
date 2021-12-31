@@ -24,7 +24,17 @@ Within * delWithin(Within * from)
 }
 
 
-Variable * processType(char * str, int * p)
+ParsedData * newParsed()
+{
+	ParsedData * d = (ParsedData *)malloc(sizeof(ParsedData));
+	d->type = pNull;
+	d->list = NULL;
+	d->data = NULL;
+	return d;
+}
+
+
+ParsedData * processType(char * str, int * p)
 {
 	bool done = false;
 	Variable * d = newVar();
@@ -125,19 +135,22 @@ Variable * processType(char * str, int * p)
 		
 		else
 		{
+			ParsedData * s;
 			Variable * t;
 			//printf("sc %c\n", str[*p]);
 			//if(str[*p] == 'l' && *p == 16) return error(*p, "Not really an error");
-			if( (t = processFunction(str, p)) )
+			if( (s = processFunction(str, p)) )
 			{
 				freeVar(d);
-				d = t;
+				//d = t;
+				return s;
 				done = true;
 			}
 			else if( last_error.exists ) { freeVar(d); return NULL; }
 			else if( (t = processVariable(str, p)) )
 			{
-				copyVar(d, t);
+				//copyVar(d, t);
+				d = t;
 				done = true;
 			}
 			else if( last_error.exists ) { freeVar(d); return NULL; }
@@ -150,14 +163,19 @@ Variable * processType(char * str, int * p)
 		
 		if(done) break;
 	}
-	return d;
+	ParsedData * e = newParsed();
+	e->type = pVariable;
+	e->list = malloc((sizeof(Variable *)*2));
+	e->list[0] = d;
+	e->list[1] = NULL;
+	return e;
 }
 
-Variable ** processList(char * str, int * p, char until)
+ParsedData ** processList(char * str, int * p, char until)
 {
 	//Variable * list[64];
 	int s = 2;
-	Variable ** list = (Variable **)malloc((sizeof(Variable *)*s));
+	ParsedData ** list = (ParsedData **)malloc(s*(sizeof(ParsedData *)));
 	
 	int x = 0;
 	int l = strlen(str);
@@ -177,7 +195,8 @@ Variable ** processList(char * str, int * p, char until)
 			default:
 			{
 				//printf("c %c\n", str[*p]);
-				Variable * t = processType(str, p);
+				ParsedData * t = processType(str, p);
+				/*
 				if(!t)
 				{
 					for(--x;x>0;--x)
@@ -188,12 +207,13 @@ Variable ** processList(char * str, int * p, char until)
 					
 					return NULL;
 				}
+				*/
 				//printf("after type: p=%i c=%c\n", (*p), str[*p]);
 				
 				if((x+1) > s)
 				{
 					s += 4;
-					Variable ** l = (Variable **)realloc(list, (sizeof(Variable *)*s));
+					ParsedData ** l = (ParsedData **)realloc(list, s*(sizeof(ParsedData *)));
 					if(!l)
 					{
 						fprintf(stderr, "allocation failure, argument list too large\n");
@@ -227,7 +247,7 @@ Variable * processVariable(char * str, int * p)
 	return NULL;
 }
 
-Variable * processFunction(char * line, int * p)
+ParsedData * processFunction(char * line, int * p)
 {
 	char * str = line; str += *p;
 	int col = *p;
@@ -246,7 +266,7 @@ Variable * processFunction(char * line, int * p)
 				if(line[*p] == '(')
 				{
 					(*p)++;
-					Variable ** list = processList(line, p, ')');
+					ParsedData ** list = processList(line, p, ')');
 					
 					if(!list)
 					{
@@ -254,6 +274,7 @@ Variable * processFunction(char * line, int * p)
 					}
 					
 					//printf("%s\n", _functions[_x]);
+					/*
 					Variable * ret = call_function((func)_x, list);
 					last_error.col = col;
 					
@@ -262,6 +283,20 @@ Variable * processFunction(char * line, int * p)
 						freeVar(*p);
 					}
 					free(list);
+					*/
+					
+					if( _x == func_set && list[0]->list[0] )
+					{
+						// this will be a variable...
+						// go ahead and define it for the preprocessor
+						newVariable(getVarString(list[0]->list[0]));
+					}
+					
+					ParsedData * ret = newParsed();
+					ret->type = pFunction;
+					ret->list = (void **)list;
+					ret->data = (void *)(size_t)_x;
+					
 					return ret;
 				}
 			}
@@ -273,7 +308,7 @@ Variable * processFunction(char * line, int * p)
 }
 
 
-bool processLine(char * line, unsigned int * num)
+ParsedData * processLine(char * line, unsigned int * num)
 {
 	static Within * within = NULL;
 	static Within * skipExec = NULL;
@@ -311,7 +346,6 @@ bool processLine(char * line, unsigned int * num)
 			return false;
 		}
 	}
-	
 	if(strcmp(line, "endif") == 0)
 	{
 		if(!within || within->type != inIf)
@@ -321,7 +355,7 @@ bool processLine(char * line, unsigned int * num)
 		
 		if(skipExec == within) skipExec = NULL;
 		within = delWithin(within);
-		return true;
+		return NULL;
 	}
 	else if(strstr(line, "end") == line)
 	{
@@ -340,7 +374,7 @@ bool processLine(char * line, unsigned int * num)
 		
 		if(skipExec == within) skipExec = NULL;
 		within = delWithin(within);
-		return true;
+		return NULL;
 	}
 	else if(strstr(line, "if") == line)
 	{
@@ -352,21 +386,19 @@ bool processLine(char * line, unsigned int * num)
 		
 		if(!skipExec)
 		{
-			Variable * t = processType(line, &p);
+			ParsedData * t = processType(line, &p);
 			
 			if(!t)
 			{
 				return false;
 			}
 			
-			if(!getVarBool(t))
-			{
-				skipExec = within;
-			}
+			ParsedData * n = newParsed();
+			n->type = pIf;
 			
-			freeVar(t);
+			return n;
 		}
-		return false;
+		return NULL;
 	}
 	else if(strstr(line, "while") == line)
 	{
@@ -386,34 +418,51 @@ bool processLine(char * line, unsigned int * num)
 		
 		if(!skipExec)
 		{
-			Variable * t = processType(line, &p);
+			ParsedData * t = processType(line, &p);
 			if(!t) return false;
 			
-			if(!getVarBool(t))
-			{
-				skipExec = within;
-			}
+			ParsedData * n = newParsed();
+			n->type = pWhile;
 			
-			freeVar(t);
+			return n;
 		}
-		return false;
+		return NULL;
 	}
 	
 	if(skipExec)
 	{
-		return false;
+		return NULL;
 	}
 	
 	//printf("len = %i\n",(int)strlen(line));
-	Variable * r = processType(line, &p);
+	ParsedData * r = processType(line, &p);
 	
-	if(interactive)
+	return r;
+}
+
+Variable * runParsed(ParsedData * line, unsigned int * num)
+{
+	Variable * v = NULL;
+	
+	switch(line->type)
 	{
-		// already better than PHP's interactive mode :P
-		printf("%s\r\n", r?getVar(r):"???");
+		case pVariable:
+			v = line->list[0];
+			break;
+		case pFunction:
+		{
+			//ParsedData ** p = (ParsedData **)malloc(s*(sizeof(ParsedData *)));
+			ParsedData ** p = (ParsedData **)line->list;
+			int size = 0; for(ParsedData ** d=p;*d;++d) { ++size; }
+			
+			Variable ** list = (Variable **)malloc(size*(sizeof(Variable *)));
+			size = 0; for(ParsedData ** d=p;*d;++d) { list[size++] = runParsed(*d, num); }
+			list[size] = NULL;
+			v = call_function(((func)(size_t)line->data), list);
+			break;
+		}
 	}
 	
-	freeVar(r);
-	
-	return (r != NULL);
+	return v;
 }
+
