@@ -364,6 +364,8 @@ ParsedData * processLine(char * line, unsigned int * num)
 			return error(p, "Line with \"end\", but nothing started");
 		}
 		
+		((ParsedData *)within->extra)->num = *num;
+		
 		if(!skipExec)
 		{
 			if(within->type == inWhile)
@@ -423,6 +425,9 @@ ParsedData * processLine(char * line, unsigned int * num)
 			
 			ParsedData * n = newParsed();
 			n->type = pWhile;
+			n->data = (void *)t;
+			
+			within->extra = (void *)n;
 			
 			return n;
 		}
@@ -442,7 +447,32 @@ ParsedData * processLine(char * line, unsigned int * num)
 
 Variable * runParsed(ParsedData * line, unsigned int * num)
 {
+	static Within * within = NULL;
+	static Within * skipExec = NULL;
+	
 	Variable * v = NULL;
+	
+	if(within)
+	{
+		if(within->type == inWhile)
+		{
+			if( (*num)+1 == ((unsigned int)(((ParsedData *)within->extra)->num)) )
+			{
+				if(!skipExec)
+				{
+					*num = within->line;
+				}
+				
+				if(skipExec == within) skipExec = NULL;
+				within = delWithin(within);
+			}
+		}
+	}
+	
+	if(skipExec)
+	{
+		return NULL;
+	}
 	
 	switch(line->type)
 	{
@@ -459,6 +489,22 @@ Variable * runParsed(ParsedData * line, unsigned int * num)
 			size = 0; for(ParsedData ** d=p;*d;++d) { list[size++] = runParsed(*d, num); }
 			list[size] = NULL;
 			v = call_function(((func)(size_t)line->data), list);
+			break;
+		}
+		case pWhile:
+		{
+			Variable * d = runParsed((ParsedData *)line->data, NULL);
+			
+			within = newWithin(within);
+			within->type = inWhile;
+			within->line = *num;
+			within->extra = (void *)line;
+			
+			if(!getVarBool(d))
+			{
+				skipExec = within;
+			}
+			
 			break;
 		}
 	}

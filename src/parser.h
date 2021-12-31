@@ -9,6 +9,7 @@ typedef struct ParsedData
 {
 	void * data;
 	void ** list;
+	int num;
 	enum
 	{
 		pNull,
@@ -24,6 +25,7 @@ typedef struct ParsedData
 typedef struct Within
 {
 	void * from;
+	void * extra;
 	enum
 	{
 		inUndef,
