@@ -56,6 +56,11 @@
 	_FUNC(func_float) \
 	_FUNC(func_bool) \
 	_FUNC(func_str) \
+	\
+	_FUNC(func_strlen) \
+	_FUNC(func_strcat) \
+	_FUNC(func_substr) \
+	_FUNC(func_strpos) \
 
 
 #define _FUNC(x) x,

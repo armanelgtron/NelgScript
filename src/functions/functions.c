@@ -556,6 +556,68 @@ Variable * call_function(func f, Variable * argv[])
 			return var;
 		}
 		
+		case func_strlen:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			Variable * var = newVar();
+			setVarInt(var, strlen(getVarString(*p)));
+			return var;
+		}
+		
+		case func_strcat:
+		{
+			if(!*p) return error(0, ERR_NUM_ARGS);
+			
+			Variable * var = newVar();
+			unsigned int size;
+			char * s = malloc(sizeof(char)*(size=(strlen(getVarString(*p))+1)));
+			if(!s) { free(var); free(s); return NULL; }
+			strcat(s, getVarString(*p));
+			while(*(++p))
+			{
+				s = realloc(s, sizeof(char)*(size+=strlen(getVarString(*p))));
+				if(!s) { free(var); free(s); return NULL; }
+				strcat(s, getVarString(*p));
+			}
+			setVarString(var, s);
+			return var;
+		}
+		
+		case func_substr:
+		{
+			if(!*p || !(*(p+1))) return error(0, ERR_NUM_ARGS);
+			char * string = getVarString(*(p++));
+			VAR_INT offset = getVarInt(*(p++));
+			VAR_INT length = -1;
+			if(*p)
+			{
+				length = getVarInt(*p);
+				if(length < 0) length = 0;
+			}
+			
+			unsigned int l = strlen(string);
+			if(offset > l) offset = l;
+			if(length > l) length = l;
+			
+			string += offset;
+			if(length >= 0) string[length] = '\0';
+			
+			Variable * var = newVar();
+			setVarString(var, string);
+			return var;
+		}
+		
+		case func_strpos:
+		{
+			if(!*p || !*(p+1)) return error(0, ERR_NUM_ARGS);
+			char * str = mkstring(getVarString(*(p++)));
+			char * tofind = getVarString(*(p++));
+			Variable * var = newVar();
+			setVarInt(var, strpos(str, tofind));
+			free(str);
+			return var;
+		}
+		
 		case num_functions: break;
 	}
 	return NULL;
