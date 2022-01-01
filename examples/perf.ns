@@ -1,0 +1,10 @@
+#!/usr/bin/nelgscript
+
+set("startTime",time());
+
+set("loop", 5000);
+while largeRight(0, loop)
+	set("loop", sub(loop, 1));
+end
+
+print(sub(time(), startTime));
