@@ -353,6 +353,8 @@ ParsedData * processLine(char * line, unsigned int * num)
 			return error(p, "Line with \"endif\", but not in if");
 		}
 		
+		((ParsedData *)within->extra)->num = *num;
+		
 		if(skipExec == within) skipExec = NULL;
 		within = delWithin(within);
 		return NULL;
@@ -397,6 +399,9 @@ ParsedData * processLine(char * line, unsigned int * num)
 			
 			ParsedData * n = newParsed();
 			n->type = pIf;
+			n->data = (void *)t;
+			
+			within->extra = (void *)n;
 			
 			return n;
 		}
@@ -491,22 +496,26 @@ Variable * runParsed(ParsedData * line, unsigned int * num)
 			v = call_function(((func)(size_t)line->data), list);
 			break;
 		}
+		case pIf:
 		case pWhile:
 		{
-			Variable * d = runParsed((ParsedData *)line->data, NULL);
+			v = runParsed((ParsedData *)line->data, num);
+			
+			if(!getVarBool(v))
+			{
+				*num = (unsigned int)line->num;
+				break;
+			}
 			
 			within = newWithin(within);
-			within->type = inWhile;
+			within->type = (line->type==pWhile)?inWhile:inIf;
 			within->line = *num;
 			within->extra = (void *)line;
 			
-			if(!getVarBool(d))
-			{
-				skipExec = within;
-			}
-			
 			break;
 		}
+		
+		case pNull: break;
 	}
 	
 	return v;
