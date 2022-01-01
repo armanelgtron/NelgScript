@@ -19,6 +19,7 @@ void * error(unsigned int col, char * error)
 	#endif
 	
 	#ifdef ERR_SIG
+		fprintf(stderr, "Error: %s\r\n", error);
 		raise(SIGINT);
 	#endif
 	
