@@ -36,7 +36,7 @@ Variable * call_function(func f, Variable * argv[])
 			if(!*p) return error(0, ERR_NUM_ARGS);
 			char * name = getVarString(*(p++));
 			
-			if(*(p+1)) return error(0, ERR_NUM_ARGS);
+			if(*p && *(p+1)) return error(0, ERR_NUM_ARGS);
 			
 			Variable * var = newVariable(name);
 			if(*p)
@@ -62,6 +62,7 @@ Variable * call_function(func f, Variable * argv[])
 		{
 			bool v = true;
 			Variable * comp = (*p);
+			char * c = mkstring(getVarString(comp));
 			for(p++;(*p)!=NULL;p++)
 			{
 				if(comp->type != (*p)->type)
@@ -70,12 +71,13 @@ Variable * call_function(func f, Variable * argv[])
 					break;
 				}
 				
-				if(strcmp(getVarString(comp), getVarString(*p)) != 0)
+				if(strcmp(c, getVarString(*p)) != 0)
 				{
 					v = false;
 					break;
 				}
 			}
+			free(c);
 			
 			Variable * var = newVar(); setVarBool(var, v);
 			return var;
