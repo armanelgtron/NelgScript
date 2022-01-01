@@ -36,7 +36,7 @@ Variable * call_function(func f, Variable * argv[])
 			if(!*p) return error(0, ERR_NUM_ARGS);
 			char * name = getVarString(*(p++));
 			
-			if(*(p+1)) return error(0, ERR_NUM_ARGS);
+			if(*p && *(p+1)) return error(0, ERR_NUM_ARGS);
 			
 			Variable * var = newVariable(name);
 			if(*p)
