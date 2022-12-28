@@ -5,6 +5,7 @@
 #define NELGSCRIPT_VARIABLES_H
 
 void initVariables();
+void clearVariables();
 
 Variable * variable(size_t v);
 

@@ -131,6 +131,8 @@ int main(int argc, char ** argv)
 	
 	if(interactive)
 	{
+		unsigned int fline = 0;
+		
 		char event[1024];
 		printf("NelgScript C edition v0\n");
 		printf("> ");
@@ -141,7 +143,7 @@ int main(int argc, char ** argv)
 			if(!isatty(fileno(stdin))) fprintf(stderr, "%s", event);
 			
 			strtrim(event);
-			ParsedData * p = processLine(event, NULL);
+			ParsedData * p = processLine(event, NULL, fline);
 			if(p)
 			{
 				Variable * d = runParsed(p, NULL);
@@ -151,11 +153,12 @@ int main(int argc, char ** argv)
 				
 				free(p);
 				// I think this is safe to free...
-				free(d);
+				//free(d);
+				// it wasn't safe to free
 			}
 			
 			// prints any errors
-			isError(event, 0);
+			isError(event, ++fline);
 			
 			printf("> ");
 		}
@@ -171,6 +174,7 @@ int main(int argc, char ** argv)
 		unsigned int s = 16, o = 0;
 		lines = (ParsedData **)malloc(s*sizeof(ParsedData *));
 		if(!lines) return 1;
+		unsigned int fline = 0;
 		while( !feof( file ) && fgets( event, 1023, file ) )
 		{
 			if(event[1022] != '\n')
@@ -184,14 +188,21 @@ int main(int argc, char ** argv)
 			strtrim(event);
 			
 			unsigned int oline = line, nline = line;
-			ParsedData * d = processLine(event, &nline);
+			ParsedData * d = processLine(event, &nline, fline);
 			
-			if(isError(event, line+1))
+			if(isError(event, ++fline))
 			{
 				fprintf(stderr,"\r\n");
 				return 1;
 			}
 			lines[line] = d;
+			
+			if( d && d->type == pVariable )
+			{
+				// pointless and we'd free the variable
+				free(d);
+				d = NULL;
+			}
 			
 			if( d && ((++line) >= s) )
 			{
@@ -213,9 +224,9 @@ int main(int argc, char ** argv)
 	while(lines[line])
 	{
 		unsigned int oline = line, nline = line;
-		runParsed(lines[line], &nline);
+		freeVar(runParsed(lines[line], &nline));
 		
-		if(isError("", line+1))
+		if(isError(lines[line]->lineStr, lines[line]->line))
 		{
 			fprintf(stderr,"\r\n");
 			return 1;

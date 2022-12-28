@@ -30,7 +30,17 @@ ParsedData * newParsed()
 	d->type = pNull;
 	d->list = NULL;
 	d->data = NULL;
+	d->line = d->col = 0;
 	return d;
+}
+
+void freeParsed(ParsedData * d)
+{
+	if(!d) return;
+	
+	free(d->data);
+	free(d->list);
+	free(d);
 }
 
 
@@ -39,6 +49,7 @@ ParsedData * processType(char * str, int * p)
 	bool done = false;
 	Variable * d = newVar();
 	int l = strlen(str);
+	int col = *p;
 	for(;(*p)<l;++(*p))
 	{
 		if(str[*p] == '"')
@@ -168,6 +179,8 @@ ParsedData * processType(char * str, int * p)
 	e->list = malloc((sizeof(Variable *)*2));
 	e->list[0] = d;
 	e->list[1] = NULL;
+	e->col = col;
+	e->lineStr = str;
 	return e;
 }
 
@@ -308,7 +321,7 @@ ParsedData * processFunction(char * line, int * p)
 }
 
 
-ParsedData * processLine(char * line, unsigned int * num)
+ParsedData * processLine(char * line, unsigned int * num, unsigned int realnum)
 {
 	static Within * within = NULL;
 	static Within * skipExec = NULL;
@@ -446,6 +459,10 @@ ParsedData * processLine(char * line, unsigned int * num)
 	
 	//printf("len = %i\n",(int)strlen(line));
 	ParsedData * r = processType(line, &p);
+	if(r)
+	{
+		r->line = realnum;
+	}
 	
 	return r;
 }
@@ -494,6 +511,8 @@ Variable * runParsed(ParsedData * line, unsigned int * num)
 			size = 0; for(ParsedData ** d=p;*d;++d) { list[size++] = runParsed(*d, num); }
 			list[size] = NULL;
 			v = call_function(((func)(size_t)line->data), list);
+			
+			free(list);
 			break;
 		}
 		case pIf:

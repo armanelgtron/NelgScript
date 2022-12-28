@@ -19,6 +19,7 @@ typedef struct ParsedData
 		pWhile,
 	} type;
 	unsigned int line, col;
+	char * lineStr;
 
 } ParsedData;
 
@@ -47,7 +48,7 @@ ParsedData ** processList(char * str, int * p, char until);
 Variable * processVariable(char * str, int * p);
 ParsedData * processFunction(char * line, int * p);
 
-ParsedData * processLine(char * line, unsigned int * num);
+ParsedData * processLine(char * line, unsigned int * num, unsigned int realnum);
 
 Variable * runParsed(ParsedData * line, unsigned int * num);
 

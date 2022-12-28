@@ -11,6 +11,15 @@ void initVariables()
 	}
 }
 
+void clearVariables()
+{
+	for(int i=MAX_VARIABLES-1;i>=0;--i)
+	{
+		if(variables[i]) freeVar(variables[i]);
+		variables[i] = NULL;
+	}
+}
+
 Variable * variable(size_t v)
 {
 	if(v > MAX_VARIABLES) return NULL;
