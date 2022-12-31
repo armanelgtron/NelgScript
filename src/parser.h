@@ -23,24 +23,7 @@ typedef struct ParsedData
 
 } ParsedData;
 
-typedef struct Within
-{
-	void * from;
-	void * extra;
-	enum
-	{
-		inUndef,
-		inComment,
-		inWhile,
-		inIf,
-		inFunction,
-	} type;
-	unsigned int line;
-	
-} Within;
-
-Within * newWithin(Within * from);
-Within * delWithin(Within * from);
+#include "Within.h"
 
 ParsedData * processType(char * str, int * p);
 ParsedData ** processList(char * str, int * p, char until);
